@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>உங்கள் சொந்த சேட்டிங் போட்டை உருவாக்கவும்</title>
+    
+    <link rel="stylesheet" href="index.css"/>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1>KuralBot</h1>
+        </div>
+        <div id="message-section" class="message-section">
+            <div class="message bot-message"><span id="bot-response">வணக்கம்! நான் திருக்குறள் பற்றி உங்களுக்கு எவ்வாறு உதவ முடியும்?</span></div>
+        </div>
+        <div id="input-section" class="input-section">
+            <input id="input" type="text" placeholder="ஒரு செய்தியை நுழைக்கவும்" autocomplete="off" autofocus="autofocus"/>
+            <button class="send" onclick="sendMessage()">➤</button>
+        </div>
+    </div>
+
+    <script src="App.js"></script>
+</body>
+</html>
