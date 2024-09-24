@@ -1,3 +1,4 @@
+
 // src/components/KuralSearch.js
 import React, { useState } from 'react';
 import axios from 'axios';
@@ -10,12 +11,15 @@ const KuralSearch = () => {
     const [error, setError] = useState('');
 
     const handleSearch = async () => {
+        console.log('Selected Field:', selectedField);
+        console.log('Input Value:', inputValue);
         try {
             const response = await axios.get('http://localhost:5000/api/kurals', {
                 params: {
                     [selectedField]: inputValue
                 }
             });
+            
             setResults(response.data);
             setError('');
         } catch (err) {
@@ -23,6 +27,7 @@ const KuralSearch = () => {
             setResults([]);
         }
     };
+    
 
     return (
         <div className={styles.container}>
@@ -36,7 +41,6 @@ const KuralSearch = () => {
                     <option value="sectionName">Section Name</option>
                     <option value="verse">Verse</option>
                   
-                    <option value="number">Number</option>
                 </select>
             </div>
 
@@ -57,8 +61,8 @@ const KuralSearch = () => {
                         <p>Chapter Name: {kural.chapterName}</p>
                         <p>Section Name: {kural.sectionName}</p>
                         <p>Verse: {kural.verse}</p>
-                        <p>Translation: {kural.translation}</p>
-                        <p>Explanation: {kural.explanation}</p>
+                        <p>{kural.translation}</p>
+                        <p>{kural.explanation}</p>
                         <p>Number: {kural.number}</p>
                     </li>
                 ))}
