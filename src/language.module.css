@@ -1,0 +1,36 @@
+/* Center the container */
+.languageSelection {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center horizontally */
+    justify-content: center; /* Center vertically */
+    height: 75vh; /* Full height to center vertically in the viewport */
+}
+
+/* Styles for button container */
+.buttonContainer {
+    display: flex;
+    gap: 10px; /* Space between buttons */
+    margin-top: 5px; /* Margin above buttons */
+}
+
+/* Styles for buttons */
+.button {
+    padding: 10px 20px;
+    font-size: 20px;
+    color: rgb(5, 5, 5);
+    background-color: #d9ddc7;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.c1{
+    padding-top: 110px;
+    font-size: 40px;
+    color: rgb(40, 36, 36);
+}
+/* Hover effect for buttons */
+.button:hover {
+    background-color: #004494; /* Darker shade for hover effect */
+}

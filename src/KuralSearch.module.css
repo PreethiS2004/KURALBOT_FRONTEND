@@ -9,7 +9,7 @@
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-
+ 
 h1 {
     text-align: center;
     color: #333;
@@ -84,4 +84,27 @@ li {
     font-weight: bold;
     text-align: center;
     margin-top: 10px;
+}
+.optionsContainer {
+    display: flex;
+    justify-content: center; /* Centers the boxes horizontally */
+    align-items: center; /* Centers the boxes vertically (if the container has height) */
+    gap: 15px;
+    height: 10vh; /* This ensures the container takes up the full viewport height for vertical centering */
+}
+
+.optionBox {
+    
+    border: 2px solid #252628;
+    border-radius: 10px;
+    padding: 10px 20px;
+    background-color: #f9f9f9;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.optionBox:hover {
+    background-color: #007BFF;
+    color: white;
 }

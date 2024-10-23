@@ -1,140 +1,217 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import styles from './KuralSearch.module.css';
 
-const KuralSearch = () => {
+const KuralSearch = ({ selectedLanguage }) => {
     const [selectedField, setSelectedField] = useState('');
     const [inputValue, setInputValue] = useState('');
     const [results, setResults] = useState([]);
+    const [allDetails, setAllDetails] = useState([]);
+    const [expandedChapters, setExpandedChapters] = useState([]);
+    const [expandedSections, setExpandedSections] = useState({});
     const [error, setError] = useState('');
+    const [showSearch, setShowSearch] = useState(true); // State to manage the visibility of the search button
 
-    // Utility functions to classify input
-    const isTamil = (text) => /[\u0B80-\u0BFF]/.test(text);  // Check for Tamil characters
+    useEffect(() => {
+        console.log("Selected Language:", selectedLanguage);
+    }, [selectedLanguage]);
 
-    const isPhoneticEnglish = (text) => {
-        const commonPhoneticPatterns =[
-            'aa', 'ee', 'ii', 'oo', 'uu', 'la', 'ra', 'na', 'th', 'zh', 'ng', 'ch',
-            'ka', 'ki', 'ku', 'ke', 'kai', 'ko', 'kau', 'kh', 'kha', 'khi', 'khu',
-            'ga', 'gi', 'gu', 'ge', 'gai', 'go', 'gau', 'gh', 'gha', 'ghi', 'ghu',
-            'cha', 'chi', 'chu', 'che', 'chai', 'cho', 'chau', 'chh', 'chha', 'chhi', 'chhu',
-            'ja', 'ji', 'ju', 'je', 'jai', 'jo', 'jau', 'jh', 'jha', 'jhi', 'jhu',
-            'ta', 'ti', 'tu', 'te', 'tai', 'to', 'tau', 'th', 'tha', 'thi', 'thu',
-            'da', 'di', 'du', 'de', 'dai', 'do', 'dau', 'dh', 'dha', 'dhi', 'dhu',
-            'na', 'ni', 'nu', 'ne', 'nai', 'no', 'nau', 'nh', 'nha', 'nhi', 'nhu',
-            'pa', 'pi', 'pu', 'pe', 'pai', 'po', 'pau', 'ph', 'pha', 'phi', 'phu',
-            'ba', 'bi', 'bu', 'be', 'bai', 'bo', 'bau', 'bh', 'bha', 'bhi', 'bhu',
-            'ma', 'mi', 'mu', 'me', 'mai', 'mo', 'mau', 'mh', 'mha', 'mhi', 'mhu',
-            'ya', 'yi', 'yu', 'ye', 'yai', 'yo', 'yau', 'yh', 'yha', 'yhi', 'yhu',
-            'ra', 'ri', 'ru', 're', 'rai', 'ro', 'rau', 'rh', 'rha', 'rhi', 'rhu',
-            'la', 'li', 'lu', 'le', 'lai', 'lo', 'lau', 'lh', 'lha', 'lhi', 'lhu',
-            'va', 'vi', 'vu', 've', 'vai', 'vo', 'vau', 'vh', 'vha', 'vhi', 'vhu',
-            'sa', 'si', 'su', 'se', 'sai', 'so', 'sau', 'sh', 'sha', 'shi', 'shu',
-            'ha', 'hi', 'hu', 'he', 'hai', 'ho', 'hau', 'hh', 'hha', 'hhi', 'hhu',
-        ];
-        return commonPhoneticPatterns.some(pattern => text.includes(pattern));
-    };
-
-    const classifyInput = (text) => {
-        if (isTamil(text)) {
-            return "Tamil";
-        } else if (isPhoneticEnglish(text)) {
-            return "Phonetic";
-        } else {
-            return "English";
-        }
+    const handleInput = (field) => {
+        setSelectedField(field);
+        setInputValue('');
+        setAllDetails([]);
+        setShowSearch(true); // Show the search button when a field is selected
     };
 
     const handleSearch = async () => {
-        console.log('Selected Field:', selectedField);
-        console.log('Input Value:', inputValue);
+        let fieldName;
+        let apiUrl;
 
-        // Classify the input
-        const inputType = classifyInput(inputValue);
-        console.log('Input Type:', inputType); // Log the type of input
+        // Determine the API URL and field name based on selected language and field
+        if (selectedField === 'inputs' && selectedLanguage === 'Tamil') {
+            apiUrl = 'http://localhost:5000/api/questions';
+            fieldName = 'inputs';
+        } else if (selectedField === 'inputs' && selectedLanguage === 'English') {
+            apiUrl = 'http://localhost:5000/api/questions';
+            fieldName = 'english_input';
+        } else {
+            fieldName = (() => {
+                if (selectedField === 'chapterName' && selectedLanguage === 'English') {
+                    return 'Chapter_Eng';
+                }
+                if (selectedField === 'chapterName' && selectedLanguage === 'Tamil') {
+                    return 'chapterName';
+                }
+                if (selectedField === 'chapterName' && selectedLanguage === 'Hindi') {
+                    return 'chapterName';
+                }
+                if (selectedField === 'sectionName' && selectedLanguage === 'English') {
+                    return 'section_eng';
+                }
+                if (selectedField === 'sectionName' && selectedLanguage === 'Tamil') {
+                    return 'sectionName';
+                }
+                if (selectedField === 'verse' && selectedLanguage === 'English') {
+                    return 'translation';
+                }
+                if (selectedField === 'verse' && selectedLanguage === 'Tamil') {
+                    return 'verse';
+                }
+                return selectedField;
+            })();
 
-        const fieldName = (() => {
-            if (selectedField === 'chapterName' && inputType === 'English') {
-                return 'Chapter_Eng';
-            } 
-            else if(selectedField === 'chapterName' && inputType==='Phonetic') {
-                return 'Chapter';
-            }
-            else if (selectedField === 'sectionName' && inputType === 'English') {
-                return 'section_eng';
-            }
-            else if (selectedField === 'sectionName' && inputType==='Phonetic') {
-                return 'section_trans';
-            }
-            else if (selectedField === 'verse' && inputType === 'English') {
-                return 'translation';
-            }
-            else if (selectedField === 'verse' && inputType==='Phonetic') {
-                return 'verse';
-            }
-            return selectedField; // Default case
-        })();
-
-        console.log('Field Name to Search:', fieldName); // Log the determined field name
+            apiUrl = 'http://localhost:5000/api/kurals';
+        }
 
         try {
-            const response = await axios.get('http://localhost:5000/api/kurals', {
-                params: {
-                    [fieldName]: inputValue
-                }
-            });
-
-            console.log('API Response:', response.data); // Log the response data
-
+            const response = await axios.get(apiUrl, { params: { [fieldName]: inputValue,selectedLanguage: selectedLanguage } });
             setResults(response.data);
             setError('');
         } catch (err) {
-            console.error('Error fetching data:', err); // Log any errors that occur
+            console.error('Error fetching data:', err);
             setError('Error fetching data');
             setResults([]);
         }
     };
 
+    const fetchAllDetails = async () => {
+        try {
+            const response = await axios.get('http://localhost:5000/api/all-details', {
+                params: { selectedLanguage }
+            });
+            setAllDetails(response.data);
+            setError('');
+            setShowSearch(false); // Hide the search button when fetching all details
+        } catch (err) {
+            console.error('Error fetching all details:', err);
+            setError('Error fetching all details');
+            setAllDetails([]);
+        }
+    };
+
+    const toggleChapter = (chapterId) => {
+        setExpandedChapters((prev) => 
+            prev.includes(chapterId)
+                ? prev.filter(id => id !== chapterId)
+                : [...prev, chapterId]
+        );
+    };
+
+    const toggleSection = (chapterId, sectionIndex) => {
+        setExpandedSections((prev) => ({
+            ...prev,
+            [chapterId]: prev[chapterId]?.includes(sectionIndex)
+                ? prev[chapterId].filter(idx => idx !== sectionIndex)
+                : [...(prev[chapterId] || []), sectionIndex]
+        }));
+    };
+
     return (
         <div className={styles.container}>
             <h1>Search Thirukkural</h1>
-            
+
             <div>
-                <label>Select Field:</label>
-                <select value={selectedField} onChange={(e) => setSelectedField(e.target.value)}>
-                    <option value="">Select a field</option>
-                    <option value="chapterName">Chapter Name</option>
-                    <option value="sectionName">Section Name</option>
-                    <option value="verse">Verse</option>
-                </select>
+                <label>Select Field</label>
+                <div className={styles.optionsContainer}>
+                    <div className={styles.optionBox} onClick={() => handleInput('chapterName')}>Chapter Name</div>
+                    <div className={styles.optionBox} onClick={() => handleInput('sectionName')}>Section Name</div>
+                    <div className={styles.optionBox} onClick={() => handleInput('verse')}>Verse</div>
+                    <div className={styles.optionBox} onClick={() => handleInput('inputs')}>Other Questions</div>
+                    <div className={styles.optionBox} onClick={fetchAllDetails}>All Details</div>
+                </div>
             </div>
 
             {selectedField && (
                 <div>
                     <label>{selectedField.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}:</label>
                     <input 
-                        type={selectedField === 'number' ? 'number' : 'text'} 
+                        type="text" 
                         value={inputValue} 
                         onChange={(e) => setInputValue(e.target.value)} 
                     />
                 </div>
             )}
-            
-            <button onClick={handleSearch}>Search</button>
+
+            {/* Conditionally render the search button based on showSearch state */}
+            {showSearch && <button onClick={handleSearch}>Search</button>}
 
             {error && <p className={styles.error}>{error}</p>}
 
+            {/* Displaying the results based on selectedField */}
             <ul>
                 {results.length > 0 ? results.map((kural, index) => (
                     <li key={index}>
-                        <p>Chapter Name: {kural.chapterName}</p>
-                        <p>Section Name: {kural.sectionName}</p>
-                        <p>Verse: {kural.verse}</p>
-                        <p>{kural.translation}</p>
-                        <p>{kural.explanation}</p>
-                        <p>Number: {kural.number}</p>
+                        {selectedField === 'inputs' ? (
+                            <>
+                                <p>Answer: {kural.targets}</p>
+                                <p>Number: {kural.number}</p>
+                            </>
+                        ) : (
+                            <>
+                            {selectedLanguage === 'English' ? (
+                    <>
+                        <p>Chapter Name: {kural.Chapter_Eng}</p>
+                        <p>Chapter Group:  {kural.chapter_group_eng}</p>
+                        <p> Section Name: {kural.section_eng}</p>
+                        <p>{kural.translation || 'Not available'}</p>
+                        <p>{kural.explanation || 'Not available'}</p>
+                    </>
+                ) : (
+                    <>
+                        <p>அத்தியாயம் :{kural.chapterName}</p>
+                        <p>அத்தியாயக் குழு: {kural.chapter_group_tam}</p>
+                        <p>பிரிவு: {kural.sectionName}</p>
+                        <p>திருக்குறள்: {kural.verse}</p>
+                        
+                    </>
+                )}
+                <p>Number: {kural.number}</p>
+                            
+                            </>
+                        )}
                     </li>
-                )) : <p>No results found.</p>}
+                )) : <p></p>}
             </ul>
+
+            {/* Displaying all details with collapsing chapters and sections */}
+            {allDetails.length > 0 && (
+                <div>
+                    <h2>All Details:</h2>
+                    <ul>
+                        {allDetails.slice(0, 3).map((chapter, index) => (
+                            <li key={index}>
+                                <h3 onClick={() => toggleChapter(chapter._id)}>
+                                    {chapter._id} - {chapter.sections.reduce((sum, section) => sum + section.verses.length, 0)}
+                                    {expandedChapters.includes(chapter._id) ? " ▲" : " ▼"}
+                                </h3>
+
+                                {expandedChapters.includes(chapter._id) && (
+                                    <div>
+                                        {chapter.sections.map((section, secIndex) => (
+                                            <div key={secIndex}>
+                                                <h4 onClick={() => toggleSection(chapter._id, secIndex)}>
+                                                    {section.sectionName}- {section.verses.length}
+                                                    {expandedSections[chapter._id]?.includes(secIndex) ? " ▲" : " ▼"}
+                                                </h4>
+
+                                                {expandedSections[chapter._id]?.includes(secIndex) && (
+                                                    <ul>
+                                                        {section.verses.map((verse, verseIndex) => (
+                                                            <li key={verseIndex}>
+                                                                <p> {verse.verse}</p>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
         </div>
     );
 };
