@@ -16,8 +16,11 @@ const LanguageSelection = ({ onLanguageChange }) => {
                 <button className={styles.button} onClick={() => handleLanguageChange('English')}>
                     English
                 </button>
-                <button className={styles.button} onClick={() => handleLanguageChange('russian')}>
+                <button className={styles.button} onClick={() => handleLanguageChange('Russian')}>
                     Russian
+                </button>
+                <button className={styles.button} onClick={() => handleLanguageChange('Hindi')}>
+                    Hindi
                 </button>
             </div>
         </div>
