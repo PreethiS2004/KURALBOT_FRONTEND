@@ -189,29 +189,35 @@ const KuralSearch = ({ selectedLanguage }) => {
 
             {allDetails.length > 0 && (
                 <div>
-                    <h2>{selectedLanguage === 'Russian' ? 'Все детали' : selectedLanguage === 'Tamil' ? 'எல்லா விவரங்களும்' : selectedLanguage === 'Hindi' ? 'सभी विवरण' : 'All Details'}</h2>
+                    <h2>{selectedLanguage === 'Russian' ? 'Все детали:' : 'All Details:'}</h2>
                     <ul>
-                        {allDetails.map((chapter) => (
-                            <li key={chapter._id}>
+                        {allDetails.slice(0, 3).map((chapter, index) => (
+                            <li key={index}>
                                 <h3 onClick={() => toggleChapter(chapter._id)}>
-                                    {selectedLanguage === 'Russian' ? chapter.Chapter : selectedLanguage === 'Tamil' ? chapter.chapterName : selectedLanguage === 'Hindi' ? chapter.chapterNameHindi : chapter.Chapter_Eng}
+                                    {selectedLanguage === 'Russian' ? chapter._id : chapter._id} - {chapter.sections.reduce((sum, section) => sum + section.verses.length, 0)}
+                                    {expandedChapters.includes(chapter._id) ? " ▲" : " ▼"}
                                 </h3>
+
                                 {expandedChapters.includes(chapter._id) && (
                                     <div>
-                                        <ul>
-                                            {chapter.sections.map((section, sectionIndex) => (
-                                                <li key={sectionIndex}>
-                                                    <h4 onClick={() => toggleSection(chapter._id, sectionIndex)}>
-                                                        {selectedLanguage === 'Russian' ? section.Section : selectedLanguage === 'Tamil' ? section.sectionName : selectedLanguage === 'Hindi' ? section.sectionNameHindi : section.section_eng}
-                                                    </h4>
-                                                    {expandedSections[chapter._id]?.includes(sectionIndex) && (
-                                                        <ul>
-                                                            <li>{selectedLanguage === 'Russian' ? 'Стих:' : selectedLanguage === 'Tamil' ? 'குறள்:' : selectedLanguage === 'Hindi' ? 'श्लोक:' : 'Verse:'} {selectedLanguage === 'Russian' ? section.verse : section.verse}</li>
-                                                        </ul>
-                                                    )}
-                                                </li>
-                                            ))}
-                                        </ul>
+                                        {chapter.sections.map((section, secIndex) => (
+                                            <div key={secIndex}>
+                                                <h4 onClick={() => toggleSection(chapter._id, secIndex)}>
+                                                    {selectedLanguage === 'Russian' ? section.sectionName : section.sectionName}- {section.verses.length}
+                                                    {expandedSections[chapter._id]?.includes(secIndex) ? " ▲" : " ▼"}
+                                                </h4>
+
+                                                {expandedSections[chapter._id]?.includes(secIndex) && (
+                                                    <ul>
+                                                        {section.verses.map((verse, verseIndex) => (
+                                                            <li key={verseIndex}>
+                                                                <p>{selectedLanguage === 'Russian' ? verse.verse : verse.verse}</p>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                )}
+                                            </div>
+                                        ))}
                                     </div>
                                 )}
                             </li>
